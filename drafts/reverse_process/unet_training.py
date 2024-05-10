@@ -5,6 +5,8 @@ from tqdm import tqdm
 from accelerate import Accelerator
 
 import torch
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import StepLR
 from torch.nn.functional import mse_loss
 from torch import FloatTensor, LongTensor
 from torch.utils.data import DataLoader
@@ -52,10 +54,11 @@ if __name__ == "__main__":
     train_loader = DataLoader(training_data, BATCH_SIZE, shuffle=True)
     unet = UNet2DModel(SAMPLE_SIZE, in_channels=1, out_channels=1, class_embed_type="timestep")
     noise_scheduler = LinearNoiseScheduler(1e-4, 0.02, TRAINING_TIMESTEPS)
-    optimizer = torch.optim.AdamW(unet.parameters())
+    optimizer = AdamW(unet.parameters(), lr=0.1)
+    lr_scheduler = StepLR(optimizer, step_size=1500, gamma=0.1)
     # send to fastest device
     accelerator = Accelerator()
-    train_loader, unet, optimizer = accelerator.prepare(train_loader, unet, optimizer)
+    train_loader, unet, optimizer, lr_scheduler = accelerator.prepare(train_loader, unet, optimizer, lr_scheduler)
     print(f"Training device: {unet.device}")
     # save unet config 
     os.makedirs(checkpoint_folder_path, exist_ok=True)
@@ -84,6 +87,7 @@ if __name__ == "__main__":
             loss = mse_loss(pred_eps, epsilon)
             loss.backward()
             optimizer.step()
+            lr_scheduler.step()
             cumul_mse += loss.item()
             progbar.set_postfix({"avg MSE": cumul_mse / training_step})
             """
