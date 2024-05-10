@@ -25,7 +25,7 @@ checkpoint_folder_path = os.path.join(os.path.dirname(__file__), "checkpoints")
 
 forward_transform = Compose([
     ToTensor(),
-    Resize((32, 32)),
+    Resize((16, 16)),
     Lambda(lambda x: 2 * x.to(torch.float32) / 255 - 1),
     Lambda(lambda z: torch.clamp(z, -1, 1)),
 ])
@@ -58,6 +58,7 @@ if __name__ == "__main__":
     # Training phase
     unet.train()
     cumul_mse = 0.0
+    training_steps = 0
     for epoch in range(N_EPOCHS):
         desc = f"epoch: {epoch+1}/{N_EPOCHS}"
         progbar = tqdm(
@@ -65,6 +66,7 @@ if __name__ == "__main__":
             desc=f"epoch: {epoch+1}/{N_EPOCHS}",
         )
         for i, (x0, labels) in enumerate(progbar):
+            training_steps += 1
             optimizer.zero_grad()
             timesteps = torch.randint_like(labels, TRAINING_TIMESTEPS)
             epsilon = torch.randn_like(x0)
@@ -74,7 +76,7 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             cumul_mse += loss.item()
-            progbar.set_postfix({"avg MSE": cumul_mse / (i+1)})
+            progbar.set_postfix({"avg MSE": cumul_mse / training_steps})
         # save checkpoint
         unet.save_pretrained(checkpoint_folder_path)
             
