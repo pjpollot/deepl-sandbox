@@ -20,7 +20,7 @@ from deepl_sandbox.noise_scheduling import LinearNoiseScheduler
 
 import matplotlib.pyplot as plt
 
-BATCH_SIZE = 4
+BATCH_SIZE = 32
 N_EPOCHS = 20
 TRAINING_TIMESTEPS = 1000
 SAMPLE_SIZE = (16, 16)
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(training_data, BATCH_SIZE, shuffle=True)
     unet = UNet2DModel(SAMPLE_SIZE, in_channels=1, out_channels=1, class_embed_type="timestep")
     noise_scheduler = LinearNoiseScheduler(1e-4, 0.02, TRAINING_TIMESTEPS)
-    optimizer = AdamW(unet.parameters(), lr=0.1)
+    optimizer = AdamW(unet.parameters(), lr=1e-2)
     lr_scheduler = StepLR(optimizer, step_size=1500, gamma=0.1)
     # send to fastest device
     accelerator = Accelerator()
