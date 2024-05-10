@@ -22,7 +22,7 @@ BATCH_SIZE = 4
 N_EPOCHS = 20
 TRAINING_TIMESTEPS = 1000
 SAMPLE_SIZE = (16, 16)
-TEST_LABELS = [1, 9]
+# TEST_LABELS = [1, 9]
 
 dataset_path = os.path.join(os.path.dirname(__file__), "../../data")
 checkpoint_folder_path = os.path.join(os.path.dirname(__file__), "checkpoints")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     # Training phase
     cumul_mse = 0.0
     training_step = 0
-    test_labels = torch.tensor([lab for lab in TEST_LABELS], device=accelerator.device, dtype=torch.long)
+    # test_labels = torch.tensor([lab for lab in TEST_LABELS], device=accelerator.device, dtype=torch.long)
     for epoch in range(N_EPOCHS):
         desc = f"epoch: {epoch+1}/{N_EPOCHS}"
         progbar = tqdm(
