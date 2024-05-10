@@ -61,8 +61,8 @@ if __name__ == "__main__":
     os.makedirs(checkpoint_folder_path, exist_ok=True)
     unet.save_config(checkpoint_folder_path)
     # graphing
-    fig, axs = plt.subplots(ncols=len(TEST_LABELS), figsize=(len(TEST_LABELS) * 4, 4))
-    os.makedirs(graphs_folder, exist_ok=True)
+    # fig, axs = plt.subplots(ncols=len(TEST_LABELS), figsize=(len(TEST_LABELS) * 4, 4))
+    # os.makedirs(graphs_folder, exist_ok=True)
     # Training phase
     cumul_mse = 0.0
     training_step = 0
@@ -86,6 +86,7 @@ if __name__ == "__main__":
             optimizer.step()
             cumul_mse += loss.item()
             progbar.set_postfix({"avg MSE": cumul_mse / training_step})
+            """
             # eval step
             unet.eval()
             xt_eval = torch.randn((len(TEST_LABELS), *xt.shape[1:]), device=accelerator.device)
@@ -101,5 +102,6 @@ if __name__ == "__main__":
                 ax.clear()
                 ax.imshow(img)
             fig.savefig(os.path.join(graphs_folder, f"gen_{training_step}.png"))
+        """
         # save checkpoint
         unet.save_pretrained(checkpoint_folder_path)
