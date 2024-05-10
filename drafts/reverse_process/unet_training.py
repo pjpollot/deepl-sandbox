@@ -86,10 +86,14 @@ if __name__ == "__main__":
             pred_eps = unet(xt, timesteps, labels).sample
             loss = mse_loss(pred_eps, epsilon)
             loss.backward()
+            cumul_mse += loss.item()
+            metrics = {
+                "avg MSE": cumul_mse / training_step,
+                "lr": lr_scheduler.get_lr(),
+            }
+            progbar.set_postfix(metrics)
             optimizer.step()
             lr_scheduler.step()
-            cumul_mse += loss.item()
-            progbar.set_postfix({"avg MSE": cumul_mse / training_step})
             """
             # eval step
             unet.eval()
